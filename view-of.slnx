@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="View/View.csproj" Id="4371e4cd-4b89-4ec0-8336-847570d0da8e" />
+  <Project Path="ViewTests/ViewTests.csproj" Id="7b8f3c59-33a1-47e6-a8b9-14ca0e108368" />
 </Solution>
