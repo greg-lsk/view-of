@@ -11,5 +11,6 @@ public unsafe readonly struct View<T> where T : struct
     public static View<T> Of(ref T referedData) => new(ref referedData);
 
     public readonly ref T Peek() => ref Unsafe.AsRef<T>(_referedData);
+    public readonly ref readonly T Peek() => ref Unsafe.AsRef<T>(_referedData);
     public readonly T Read() => Unsafe.Read<T>(_referedData);
 }
