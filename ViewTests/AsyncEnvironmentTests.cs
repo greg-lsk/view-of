@@ -37,16 +37,18 @@ public class AsyncEnvironmentTests
     [Fact]
     public async Task UnmanagedTypes_Corrupted_When_CapturedScope_NarrowerThan_AccessedScope()
     {
+        (int a, int b) = (5, 8); 
+
         var escapedView = await Task.Run(() =>
         {
-            var unmanagedStruct = new UnmanagedStruct(5, 8);
+            var unmanagedStruct = new UnmanagedStruct(a, b);
             var view = View<UnmanagedStruct>.Of(ref unmanagedStruct);
 
             return view;
         });
 
         var retrievedStruct = escapedView.Read();
-        var result = Equals(retrievedStruct, new UnmanagedStruct(5, 8));
+        var result = Equals(retrievedStruct, new UnmanagedStruct(a, b));
 
         Assert.False(result);
     }
@@ -54,16 +56,18 @@ public class AsyncEnvironmentTests
     [Fact]
     public async Task ManagedTypes_Corrupted_When_CapturedScope_NarrowerThan_AccessedScope()
     {
+        (int a, int b) = (5, 8);
+
         var escapedView = await Task.Run(() =>
         {
-            var managedStruct = new ManagedStruct(5, new StubClass(8));
+            var managedStruct = new ManagedStruct(a, new StubClass(b));
             var view = View<ManagedStruct>.Of(ref managedStruct);
 
             return view;
         });
 
         var retrievedStruct = escapedView.Read();
-        var result = Equals(retrievedStruct, new ManagedStruct(5, new StubClass(8)));
+        var result = Equals(retrievedStruct, new ManagedStruct(a, new StubClass(b)));
 
         Assert.False(result);
     }
@@ -71,13 +75,13 @@ public class AsyncEnvironmentTests
     [Fact]
     public async Task UnmanagedTypes_Uncorrupted_When_PassedTo_And_HandledIn_AsyncMethods()
     {
-        var number = 5;
-        var unmanagedStruct = new UnmanagedStruct(number, 8);
+        var a = 5;
+        var unmanagedStruct = new UnmanagedStruct(a, 8);
         var view = View<UnmanagedStruct>.Of(ref unmanagedStruct);
 
         var retrievedNumber = await StubExecution.AsyncExecution(view);
 
-        Assert.Equal(retrievedNumber, number);
+        Assert.Equal(retrievedNumber, a);
     }
 
     [Fact]

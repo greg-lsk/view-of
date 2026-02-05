@@ -37,10 +37,12 @@ public class SyncEnvironmentTests
     [Fact]
     public async Task UnmanagedTypes_Corrupted_When_CapturedScope_NarrowerThan_AccessedScope()
     {
-        var escapedView = StubExecution.SyncExecutionUnmanagedEscape(5, 8);
+        (int a, int b) = (5, 8);
+
+        var escapedView = StubExecution.SyncExecutionUnmanagedEscape(a, b);
 
         var retrievedStruct = escapedView.Read();
-        var result = Equals(retrievedStruct, new UnmanagedStruct(5, 8));
+        var result = Equals(retrievedStruct, new UnmanagedStruct(a, b));
 
         Assert.False(result);
     }
@@ -48,10 +50,12 @@ public class SyncEnvironmentTests
     [Fact]
     public async Task ManagedTypes_Corrupted_When_CapturedScope_NarrowerThan_AccessedScope()
     {
-        var escapedView = StubExecution.SyncExecutionManagedEscape(5, 8);
+        (int a, int b) = (5, 8);
+
+        var escapedView = StubExecution.SyncExecutionManagedEscape(a, b);
 
         var retrievedStruct = escapedView.Read();
-        var result = Equals(retrievedStruct, new ManagedStruct(5, new StubClass(8)));
+        var result = Equals(retrievedStruct, new ManagedStruct(a, new StubClass(b)));
 
         Assert.False(result);
     }
