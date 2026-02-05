@@ -1,4 +1,6 @@
-﻿namespace ViewTests.Stubs;
+﻿using View;
+
+namespace ViewTests.Stubs;
 
 internal class StubClass(int number)
 {
@@ -20,4 +22,40 @@ internal readonly struct ManagedStruct(int a, StubClass stubClass)
     internal StubClass Stub { get; } = stubClass;
 
     public static bool Equals(ManagedStruct x, ManagedStruct y) => x.A == y.A && x.Stub.Number == y.Stub.Number;
+}
+
+
+internal static class StubExecution
+{
+    internal static async Task<int> AsyncExecution(View<UnmanagedStruct> view)
+    {
+        await Task.Delay(1000);
+        return view.Read().A;
+    }
+    internal static async Task<StubClass> AsyncExecution(View<ManagedStruct> view)
+    {
+        await Task.Delay(1000);
+        return view.Read().Stub;
+    }
+
+    internal static void SyncExecution() 
+    { }
+    internal static int SyncExecution(View<UnmanagedStruct> view)
+    {
+        return view.Read().A;
+    }
+    internal static StubClass SyncExecution(View<ManagedStruct> view)
+    {
+        return view.Read().Stub;
+    }
+    internal static View<ManagedStruct> SyncExecutionManagedEscape(int numberA, int numberB)
+    {
+        var managedStruct = new ManagedStruct(numberA, new(numberB));
+        return View<ManagedStruct>.Of(ref managedStruct);
+    }
+    internal static View<UnmanagedStruct> SyncExecutionUnmanagedEscape(int numberA, int numberB)
+    {
+        var unmanagedStruct = new UnmanagedStruct(numberA, numberB);
+        return View<UnmanagedStruct>.Of(ref unmanagedStruct);
+    }
 }
