@@ -4,7 +4,7 @@ using ViewTests.Stubs;
 
 namespace ViewTests;
 
-public class AsyncEnvironmentTests
+public class SyncEnvironmentTests
 {
     [Fact]
     public async Task UnmanagedTypes_Uncorrupted_When_CapturedScope_SameAs_AccessedScope()
@@ -12,7 +12,7 @@ public class AsyncEnvironmentTests
         var unmanagedStruct = new UnmanagedStruct(5, 8);
         var view = View<UnmanagedStruct>.Of(ref unmanagedStruct);
 
-        await Task.Run(() => { Task.Delay(1000); });
+        StubExecution.SyncExecution();
 
         var retrievedStruct = view.Read();
         var result = Equals(retrievedStruct, unmanagedStruct);
@@ -26,7 +26,7 @@ public class AsyncEnvironmentTests
         var managedStruct = new ManagedStruct(5, new StubClass(8));
         var view = View<ManagedStruct>.Of(ref managedStruct);
 
-        await Task.Run(() => { Task.Delay(1000); });
+        StubExecution.SyncExecution();
 
         var retrievedStruct = view.Read();
         var result = Equals(retrievedStruct, managedStruct);
@@ -37,13 +37,7 @@ public class AsyncEnvironmentTests
     [Fact]
     public async Task UnmanagedTypes_Corrupted_When_CapturedScope_NarrowerThan_AccessedScope()
     {
-        var escapedView = await Task.Run(() =>
-        {
-            var unmanagedStruct = new UnmanagedStruct(5, 8);
-            var view = View<UnmanagedStruct>.Of(ref unmanagedStruct);
-
-            return view;
-        });
+        var escapedView = StubExecution.SyncExecutionUnmanagedEscape(5, 8);
 
         var retrievedStruct = escapedView.Read();
         var result = Equals(retrievedStruct, new UnmanagedStruct(5, 8));
@@ -54,13 +48,7 @@ public class AsyncEnvironmentTests
     [Fact]
     public async Task ManagedTypes_Corrupted_When_CapturedScope_NarrowerThan_AccessedScope()
     {
-        var escapedView = await Task.Run(() =>
-        {
-            var managedStruct = new ManagedStruct(5, new StubClass(8));
-            var view = View<ManagedStruct>.Of(ref managedStruct);
-
-            return view;
-        });
+        var escapedView = StubExecution.SyncExecutionManagedEscape(5, 8);
 
         var retrievedStruct = escapedView.Read();
         var result = Equals(retrievedStruct, new ManagedStruct(5, new StubClass(8)));
@@ -69,25 +57,25 @@ public class AsyncEnvironmentTests
     }
 
     [Fact]
-    public async Task UnmanagedTypes_Uncorrupted_When_PassedTo_And_HandledIn_AsyncMethods()
+    public async Task UnmanagedTypes_Uncorrupted_When_PassedTo_And_HandledIn_SyncMethods()
     {
         var number = 5;
         var unmanagedStruct = new UnmanagedStruct(number, 8);
         var view = View<UnmanagedStruct>.Of(ref unmanagedStruct);
 
-        var retrievedNumber = await StubExecution.AsyncExecution(view);
+        var retrievedNumber = StubExecution.SyncExecution(view);
 
         Assert.Equal(retrievedNumber, number);
     }
 
     [Fact]
-    public async Task ManagedTypes_Uncorrupted_When_PassedTo_And_HandledIn_AsyncMethods()
+    public async Task ManagedTypes_Uncorrupted_When_PassedTo_And_HandledIn_SyncMethods()
     {
         var stubClass = new StubClass(8);
         var managedStruct = new ManagedStruct(5, stubClass);
         var view = View<ManagedStruct>.Of(ref managedStruct);
 
-        var retrievedClass = await StubExecution.AsyncExecution(view);
+        var retrievedClass = StubExecution.SyncExecution(view);
 
         var result = ReferenceEquals(stubClass, retrievedClass);
 
