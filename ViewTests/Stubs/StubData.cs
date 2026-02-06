@@ -45,17 +45,6 @@ internal static class StubExecution
     }
 
 
-    internal static void SyncExecution() 
-    { }
-    internal static int SyncExecution(View<UnmanagedStruct> view)
-    {
-        return view.Read().A;
-    }
-    internal static StubClass SyncExecution(View<ManagedStruct> view)
-    {
-        return view.Read().Stub;
-    }
-
     internal static View<ManagedStruct> SyncExecutionManagedEscape(int numberA, int numberB)
     {
         var managedStruct = new ManagedStruct(numberA, new(numberB));
