@@ -35,9 +35,38 @@ public class AsyncEnvironmentTests
     }
 
     [Fact]
+    public async Task ReferenceTypes_UncorruptedData_When_CapturedScope_SameAs_AccessedScope()
+    {
+        var refType = new StubClass(8);
+        var view = View<StubClass>.Of(ref refType);
+
+        await Task.Run(() => { Task.Delay(1000); });
+
+        var retrievedClass = view.Read();
+        var result = StubClass.Equals(retrievedClass, refType);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task ReferenceTypes_UncorruptedReference_When_CapturedScope_SameAs_AccessedScope()
+    {
+        var refType = new StubClass(8);
+        var view = View<StubClass>.Of(ref refType);
+
+        await Task.Run(() => { Task.Delay(1000); });
+
+        var retrievedClass = view.Read();
+        var result = ReferenceEquals(retrievedClass, refType);
+
+        Assert.True(result);
+    }
+
+
+    [Fact]
     public async Task UnmanagedTypes_Corrupted_When_CapturedScope_NarrowerThan_AccessedScope()
     {
-        (int a, int b) = (5, 8); 
+        (int a, int b) = (5, 8);
 
         var escapedView = await Task.Run(() =>
         {
@@ -73,6 +102,25 @@ public class AsyncEnvironmentTests
     }
 
     [Fact]
+    public async Task ReferenceTypes_CorruptedData_When_CapturedScope_NarrowerThan_AccessedScope()
+    {
+        int a = 5;
+
+        var escapedView = await Task.Run(async () =>
+        {
+            var refType = new StubClass(a);
+            var view = View<StubClass>.Of(ref refType);
+            await Task.Delay(1000);
+
+            return view;
+        });
+
+        var retrievedClass = escapedView.Read();
+        Assert.ThrowsAny<Exception>(() => retrievedClass.Number);
+    }
+
+
+    [Fact]
     public async Task UnmanagedTypes_Uncorrupted_When_PassedTo_And_HandledIn_AsyncMethods()
     {
         var a = 5;
@@ -96,5 +144,17 @@ public class AsyncEnvironmentTests
         var result = ReferenceEquals(stubClass, retrievedClass);
 
         Assert.True(result);
+    }
+
+    [Fact]
+    public async Task ReferenceTypes_UncorruptedData_When_PassedTo_And_HandledIn_AsyncMethods()
+    {
+        int a = 5;
+        var stubClass = new StubClass(a);
+        var view = View<StubClass>.Of(ref stubClass);
+
+        var retrievedNumber = await StubExecution.AsyncExecution(view);
+
+        Assert.Equal(retrievedNumber, stubClass.Number);
     }
 }

@@ -1,5 +1,4 @@
-﻿using View;
-using ViewTests.Stubs;
+﻿using ViewTests.Stubs;
 
 
 namespace ViewTests;
@@ -30,5 +29,16 @@ public class SyncEnvironmentTests
         var result = Equals(retrievedStruct, new ManagedStruct(a, new StubClass(b)));
 
         Assert.False(result);
+    }
+
+    [Fact]
+    public async Task RefTypes_CorruptedData_When_CapturedScope_NarrowerThan_AccessedScope()
+    {
+        int a = 5;
+
+        var escapedView = StubExecution.SyncExecutionRefTypeEscape(a);
+
+        var retrievedClass = escapedView.Read();
+        Assert.NotEqual(a, retrievedClass.Number);
     }
 }

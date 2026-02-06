@@ -6,6 +6,7 @@ internal class StubClass(int number)
 {
     internal int Number { get; private set; } = number;
 
+    public static bool Equals(StubClass x, StubClass y) => x.Number == y.Number;
 }
 
 internal readonly struct UnmanagedStruct(int a, int b)
@@ -37,6 +38,12 @@ internal static class StubExecution
         await Task.Delay(1000);
         return view.Read().Stub;
     }
+    internal static async Task<int> AsyncExecution(View<StubClass> view)
+    {
+        await Task.Delay(1000);
+        return view.Read().Number;
+    }
+
 
     internal static void SyncExecution() 
     { }
@@ -48,6 +55,7 @@ internal static class StubExecution
     {
         return view.Read().Stub;
     }
+
     internal static View<ManagedStruct> SyncExecutionManagedEscape(int numberA, int numberB)
     {
         var managedStruct = new ManagedStruct(numberA, new(numberB));
@@ -57,5 +65,10 @@ internal static class StubExecution
     {
         var unmanagedStruct = new UnmanagedStruct(numberA, numberB);
         return View<UnmanagedStruct>.Of(ref unmanagedStruct);
+    }
+    internal static View<StubClass> SyncExecutionRefTypeEscape(int numberA)
+    {
+        var refType = new StubClass(numberA);
+        return View<StubClass>.Of(ref refType);
     }
 }
