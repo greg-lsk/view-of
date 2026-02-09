@@ -8,7 +8,7 @@ namespace View;
 /// type <typeparamref name="T"/>. This struct provides mechanisms to read data directly from the unmanaged memory.
 /// </summary>
 /// <typeparam name="T">The type that this view points to.</typeparam>
-public unsafe readonly struct View<T>
+public unsafe readonly struct View<T> : IEquatable<View<T>>
 {
     private readonly void* _referedData;
 
@@ -22,6 +22,7 @@ public unsafe readonly struct View<T>
     /// <returns>A new <see cref="View{T}"/> instance that points to the specified data.</returns>
     public static View<T> Of(ref T referedData) => new(ref referedData);
 
+
     /// <summary>
     /// Retrieves a read-only reference to the type located at the pointer position.
     /// This allows for access to the data without modifying it.
@@ -34,4 +35,14 @@ public unsafe readonly struct View<T>
     /// </summary>
     /// <returns>The value of <typeparamref name="T"/> read from the unmanaged memory.</returns>
     public readonly T Read() => Unsafe.Read<T>(_referedData);
+
+
+    public bool Equals(View<T> other) => _referedData == other._referedData;
+    public override bool Equals(object? obj) => obj is View<T> view && Equals(view);
+
+    public override int GetHashCode() => HashCode.Combine((IntPtr)_referedData);
+    
+
+    public static bool operator ==(View<T> left, View<T> right) => left.Equals(right);
+    public static bool operator !=(View<T> left, View<T> right) => !(left == right);
 }
